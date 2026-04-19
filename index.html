@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -17,8 +17,6 @@
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Space Mono',monospace}
 body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,255,0.01) 2px,rgba(0,229,255,0.01) 4px);pointer-events:none;z-index:9999}
 #app{display:flex;flex-direction:column;height:100vh}
-
-/* HEADER */
 #header{padding:8px 14px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;gap:7px;flex-shrink:0;position:relative;flex-wrap:wrap}
 #header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0.4}
 .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--accent);letter-spacing:2px;white-space:nowrap;text-shadow:0 0 20px rgba(0,229,255,0.4)}
@@ -29,9 +27,9 @@ select.ctl{cursor:pointer}
 .ctl::placeholder{color:var(--muted)}
 #addr-input{flex:1;min-width:160px}
 .row2{display:flex;align-items:center;gap:7px;width:100%;padding-top:6px;border-top:1px solid var(--border);flex-wrap:wrap}
-#exclude-input{flex:1;min-width:160px}
-#token-input{width:120px}
-#apikey-input{width:200px;color:var(--accent3)}
+#apikey-input{width:190px;color:var(--accent3)}
+#token-input{width:150px}
+#exclude-input{flex:1;min-width:140px}
 .tx-sel{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:'Space Mono',monospace;font-size:10px;padding:5px 6px;border-radius:4px;outline:none;cursor:pointer}
 .pbtn{background:var(--bg3);border:1px solid var(--border2);color:var(--muted2);font-family:'Space Mono',monospace;font-size:10px;padding:5px 8px;border-radius:4px;cursor:pointer;white-space:nowrap}
 .pbtn.active{background:#1a0a3e;border-color:var(--accent2);color:var(--accent2)}
@@ -43,18 +41,12 @@ select.ctl{cursor:pointer}
 #exclude-tags{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
 .ex-tag{background:#1a0a0a;border:1px solid #3a1a1a;border-radius:3px;padding:2px 6px;font-size:9px;color:#f87171;display:flex;align-items:center;gap:4px}
 .ex-tag button{background:none;border:none;color:#f87171;cursor:pointer;font-size:10px;padding:0}
-
-/* BREADCRUMB */
 #breadcrumb{padding:4px 14px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px;min-height:26px;flex-shrink:0;overflow-x:auto}
 .bc-item{cursor:pointer;color:var(--accent);opacity:0.7;white-space:nowrap}.bc-item:hover{opacity:1}
 .bc-item.cur{color:var(--text);opacity:1;cursor:default}.bc-sep{color:var(--muted)}
-
-/* MAIN */
 #main{display:flex;flex:1;overflow:hidden}
 #canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg)}
 #graph-svg{width:100%;height:100%;display:block;cursor:grab}
-
-/* SIDEBAR */
 #sidebar{width:285px;border-left:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
 #tab-bar{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
 .tab{flex:1;padding:7px 2px;text-align:center;font-size:9px;font-family:'Syne',sans-serif;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent}
@@ -72,9 +64,9 @@ select.ctl{cursor:pointer}
 .rlabel{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;margin-bottom:3px}
 .ctag{display:inline-block;padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:1px;margin:2px}
 .ctag-cex{background:#0a1a2a;border:1px solid #38bdf8;color:#38bdf8}
-.ctag-sanc{background:#1a0000;border:1px solid #ef4444;color:#ef4444}
 .ctag-consol{background:#1a001a;border:1px solid #ec4899;color:#ec4899}
 .ctag-tok{background:#0a1a0a;border:1px solid #10b981;color:#10b981;font-size:8px;padding:1px 5px}
+.ctag-safe{background:#1a1a00;border:1px solid #eab308;color:#eab308}
 .abox{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:8px;word-break:break-all;color:var(--accent);font-size:10px;line-height:1.6;margin-bottom:7px;cursor:pointer;position:relative}
 .abox:hover{border-color:var(--accent)}
 .abox::after{content:'📋';position:absolute;top:5px;right:6px;font-size:10px}
@@ -97,9 +89,9 @@ select.ctl{cursor:pointer}
 .ehint{font-size:10px;text-align:center;max-width:290px;line-height:1.9}
 #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(50px);padding:6px 14px;border-radius:4px;font-size:11px;font-weight:700;transition:transform .25s;z-index:9998;pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0)}
-#tt{position:fixed;pointer-events:none;z-index:9997;background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:6px 8px;font-size:10px;max-width:200px;word-break:break-all;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.5)}
+#tt{position:fixed;pointer-events:none;z-index:9997;background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:6px 8px;font-size:10px;max-width:210px;word-break:break-all;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.5)}
 #sbar{position:absolute;bottom:8px;left:10px;font-size:9px;color:var(--muted);pointer-events:none}
-#api-ind{position:absolute;top:8px;right:10px;font-size:9px;padding:3px 8px;border-radius:3px;border:1px solid var(--border);background:var(--bg2);pointer-events:none}
+#api-ind{position:absolute;top:8px;right:10px;font-size:9px;padding:3px 8px;border-radius:3px;border:1px solid var(--border);background:var(--bg2);pointer-events:none;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aok{color:var(--green)}.aerr{color:var(--red)}.ald{color:var(--accent3)}
 @keyframes consol-pulse{0%,100%{opacity:0.5}50%{opacity:1}}
 @keyframes sanc-pulse{0%,100%{opacity:1}50%{opacity:0.3}}
@@ -125,7 +117,7 @@ select.ctl{cursor:pointer}
       <option value="btc">Bitcoin</option>
       <option value="tron">TRON</option>
     </select>
-    <input id="addr-input" class="ctl" type="text" placeholder="Root wallet address..." autocomplete="off" spellcheck="false"/>
+    <input id="addr-input" class="ctl" type="text" placeholder="Wallet or contract address..." autocomplete="off" spellcheck="false"/>
     <select class="tx-sel" id="tx-type">
       <option value="all">Native + Tokens</option>
       <option value="native">Native only</option>
@@ -139,7 +131,7 @@ select.ctl{cursor:pointer}
     <button class="go-btn" id="gobtn" onclick="startExplore()">▶ ANALYZE</button>
     <div class="row2">
       <span style="font-size:9px;color:var(--accent3);white-space:nowrap">🔑 API Key:</span>
-      <input id="apikey-input" class="ctl" type="password" placeholder="Etherscan API key..." autocomplete="off"/>
+      <input id="apikey-input" class="ctl" type="password" placeholder="Etherscan API key..."/>
       <span style="font-size:9px;color:var(--muted2);white-space:nowrap">🚫 Exclude:</span>
       <input id="exclude-input" class="ctl" type="text" placeholder="Address + Enter..."/>
       <div id="exclude-tags"></div>
@@ -157,12 +149,11 @@ select.ctl{cursor:pointer}
         <div class="eico">⬡</div>
         <div class="etxt">Enter a wallet address</div>
         <div class="ehint">
-          Supports ETH, BSC, Polygon, Arbitrum, Base, TON, Bitcoin, TRON<br><br>
-          Tracks <b>native + ERC-20 token</b> transfers<br>
-          Detects <b>CEX deposits</b>, <b>sanctions</b>, <b>consolidation</b><br><br>
-          Enter your <b>Etherscan API key</b> above for EVM chains.<br>
-          Get one free at <a href="https://etherscan.io/register" target="_blank" style="color:var(--accent)">etherscan.io</a><br><br>
-          <b>Click</b> — details · <b>Dbl-click</b> — drill · <b>Scroll</b> — zoom
+          Works with <b>EOA wallets</b> AND <b>Gnosis Safe / multisig contracts</b><br><br>
+          Fetches: native tx + ERC-20 tokens + internal tx<br>
+          Detects CEX deposits, sanctions, consolidation<br><br>
+          Enter Etherscan API key for EVM chains<br>
+          <a href="https://etherscan.io/myapikey" target="_blank" style="color:var(--accent)">etherscan.io/myapikey</a> — free
         </div>
       </div>
       <svg id="graph-svg" style="display:none">
@@ -194,18 +185,18 @@ select.ctl{cursor:pointer}
           <div class="lrow"><div class="ldot" style="border:2px solid #38bdf8;background:#001a2a"></div>CEX wallet</div>
           <div class="lrow"><div class="ldot" style="border:2px solid #ef4444;background:#1a0000"></div>Sanctioned</div>
           <div class="lrow"><div class="ldot" style="border:2px solid #ec4899;background:#1a0010;box-shadow:0 0 6px #ec489966"></div>Consolidation hub</div>
+          <div class="lrow"><div class="ldot" style="border:2px solid #eab308;background:#1a1a00"></div>Gnosis Safe / Contract</div>
           <div class="sec">Edges</div>
           <div class="lrow"><div style="width:20px;height:2px;background:#10b981;flex-shrink:0"></div>Incoming</div>
           <div class="lrow"><div style="width:20px;height:2px;background:#ef4444;flex-shrink:0"></div>Outgoing</div>
           <div class="lrow"><div style="width:20px;height:2px;background:#38bdf8;flex-shrink:0"></div>→ CEX</div>
           <div class="lrow"><div style="width:20px;height:2px;background:#ec4899;flex-shrink:0"></div>Consolidation</div>
-          <div class="sec">API Keys</div>
+          <div class="sec">What's fetched</div>
           <div style="color:var(--muted);font-size:10px;line-height:1.9">
-            <b style="color:var(--muted2)">EVM (ETH/BSC/etc):</b><br>
-            Etherscan API key required.<br>
-            Free at <a href="https://etherscan.io/myapikey" target="_blank" style="color:var(--accent)">etherscan.io/myapikey</a><br><br>
-            <b style="color:var(--muted2)">TON / BTC / TRON:</b><br>
-            No key needed.
+            ✓ Normal transactions (txlist)<br>
+            ✓ ERC-20 token transfers (tokentx)<br>
+            ✓ Internal transactions (txlistinternal)<br>
+            ✓ Works for Gnosis Safe / multisig
           </div>
           <div class="sec">Controls</div>
           <div style="color:var(--muted2);font-size:10px;line-height:2">🖱 Drag node — move<br>🔍 Scroll — zoom<br>👆 Click — details<br>🌐 Dbl-click — drill<br>🖱 Drag bg — pan</div>
@@ -236,7 +227,7 @@ select.ctl{cursor:pointer}
 
 <script>
 // ═══════════════════════════════════════
-// CEX DATABASE
+// DATABASES
 // ═══════════════════════════════════════
 const CEX={
   '0x28c6c06298d514db089934071355e5743bf21d60':'Binance',
@@ -250,7 +241,6 @@ const CEX={
   '0x2910543af39aba0cd09dbb2d50200b3e800a63d2':'Kraken',
   '0x0a869d79a7052c7f1b55a8ebabbea3420f0d1e13':'Kraken',
   '0x6cc5f688a315f3dc28a7781717a9a798a59fda7b':'OKX',
-  '0x98ec059dc3adfbdd63429454aeb0c990fba4a128':'OKX',
   '0xf89d7b9c864f589bbf53a82105107622b35eaa40':'Bybit',
   '0x2b5634c42055806a59e9107ed44d43c426e99690':'Bybit',
   '0x1ab4973a48dc892cd9971ece8e01dcc7688f8f23':'Bitget',
@@ -262,7 +252,6 @@ const CEX={
   '0xa1d8d972560c2f8144af871db508f0b0b10a3fbf':'KuCoin',
   '0x6262998ced04146fa42253a5c0af90ca02dfd2a3':'Crypto.com',
 };
-
 const SANC=new Set([
   '0x8589427373d6d84e98730d7795d8f6f8731fda16',
   '0x722122df12d4e14e13ac3b6895a86e84145b6967',
@@ -274,8 +263,6 @@ const SANC=new Set([
   '0xa0e1c89ef1a489c9c7de96311ed5ce5d32c20e4b',
   '0x172370d5cd63279efa6d502dab29171933a610af',
 ]);
-
-// Etherscan-compatible API endpoints
 const ESCAN={
   eth:'https://api.etherscan.io/api',
   bsc:'https://api.bscscan.com/api',
@@ -292,7 +279,7 @@ const S={
   simOn:false,W:800,H:600,CX:400,CY:300,
   data:{},chain:'eth',period:90,depth:2,root:null,
   scale:1,tx:0,ty:0,panning:false,panStart:{x:0,y:0},
-  hist:[],excluded:new Set(),consolMap:new Set(),
+  hist:[],excluded:new Set(),consolMap:new Set(),safeSet:new Set(),
 };
 let selAddr=null;
 
@@ -303,6 +290,7 @@ function DC(id,d,isC){
   const a=(id||'').toLowerCase();
   if(SANC.has(a))return{s:'#ef4444',bg:'#1a0000',t:'#ef4444',type:'sanc'};
   if(CEX[a])return{s:'#38bdf8',bg:'#001a2a',t:'#38bdf8',type:'cex'};
+  if(S.safeSet.has(a))return{s:'#eab308',bg:'#1a1a00',t:'#fde047',type:'safe'};
   if(isC)return{s:'#ec4899',bg:'#1a0010',t:'#f9a8d4',type:'consol'};
   if(d===0)return{s:'#00e5ff',bg:'#001a1f',t:'#00e5ff',type:'root'};
   if(d===1)return{s:'#7c3aed',bg:'#12082a',t:'#a78bfa'};
@@ -314,8 +302,8 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const cutoff=d=>d>0?Math.floor(Date.now()/1000)-d*86400:0;
 const fmt=v=>isNaN(+v)?'?':(+v).toFixed(4);
 const getKey=()=>document.getElementById('apikey-input').value.trim();
+const setAPI=(m,c)=>{const e=document.getElementById('api-ind');e.textContent=m;e.className=c||'ald';}
 
-function setAPI(msg,cls){const el=document.getElementById('api-ind');el.textContent=msg;el.className=cls||'ald';}
 function toast(msg,col='#10b981'){
   const t=document.getElementById('toast');t.textContent=msg;t.style.background=col;
   t.style.color=(col==='#ef4444'||col==='#ec4899')?'#fff':'#000';
@@ -353,85 +341,99 @@ function renderExTags(){
 document.getElementById('exclude-input').addEventListener('keydown',e=>{
   if(e.key==='Enter'||e.key===','){e.preventDefault();addExclude(e.target.value);}
 });
-
-// Save/load API key from localStorage
 window.addEventListener('load',()=>{
-  const saved=localStorage.getItem('ct_apikey');
-  if(saved) document.getElementById('apikey-input').value=saved;
+  const k=localStorage.getItem('ct_apikey');
+  if(k)document.getElementById('apikey-input').value=k;
 });
 document.getElementById('apikey-input').addEventListener('change',e=>{
-  if(e.target.value) localStorage.setItem('ct_apikey',e.target.value);
+  if(e.target.value)localStorage.setItem('ct_apikey',e.target.value);
 });
 
 // ═══════════════════════════════════════
-// FETCH — ETHERSCAN COMPATIBLE
+// CORE FETCH — ALL 3 ETHERSCAN ENDPOINTS
 // ═══════════════════════════════════════
+async function escanFetch(base, action, addr, key, extra=''){
+  const url=`${base}?module=account&action=${action}&address=${addr}&startblock=0&endblock=99999999&sort=desc&apikey=${key||'YourApiKeyToken'}${extra}`;
+  try{
+    const r=await fetch(url);
+    if(!r.ok)return[];
+    const d=await r.json();
+    if(d.status==='1'&&Array.isArray(d.result))return d.result;
+    return[];
+  }catch{return[];}
+}
+
 async function fetchEVM(addr, chain, minTs){
-  const key = getKey();
-  const base = ESCAN[chain] || ESCAN.eth;
-  const txType = document.getElementById('tx-type').value;
-  const tokenContract = document.getElementById('token-input').value.trim()||'';
-  const results = [];
-  const startblock = 0;
+  const key=getKey();
+  const base=ESCAN[chain]||ESCAN.eth;
+  const txType=document.getElementById('tx-type').value;
+  const tokenContract=document.getElementById('token-input').value.trim();
+  const results=[];
 
+  // 1. Normal transactions
   if(txType==='all'||txType==='native'){
-    try{
-      setAPI(`${chain.toUpperCase()} native...`,'ald');
-      const url=`${base}?module=account&action=txlist&address=${addr}&startblock=${startblock}&endblock=99999999&sort=desc&apikey=${key||'YourApiKeyToken'}`;
-      const r=await fetch(url);
-      const d=await r.json();
-      if(d.status==='1'&&Array.isArray(d.result)){
-        const sym={eth:'ETH',bsc:'BNB',polygon:'MATIC',arbitrum:'ETH',base:'ETH'}[chain]||'ETH';
-        for(const t of d.result.slice(0,100)){
-          if(minTs&&parseInt(t.timeStamp)<minTs) break;
-          results.push({
-            hash:t.hash,
-            from:t.from.toLowerCase(),
-            to:t.to.toLowerCase(),
-            value:parseInt(t.value||0)/1e18,
-            ts:parseInt(t.timeStamp),
-            tokenSymbol:sym,
-            dir:t.from.toLowerCase()===addr.toLowerCase()?'out':'in',
-          });
-        }
-        setAPI(`${chain.toUpperCase()} ✓ ${results.length}tx`,'aok');
-      } else if(d.message==='No transactions found'){
-        setAPI(`${chain.toUpperCase()} ✓ 0tx`,'aok');
-      } else {
-        setAPI(`${chain.toUpperCase()} error: ${d.message||d.result}`,'aerr');
-      }
-    }catch(e){setAPI(`${chain.toUpperCase()} failed`,'aerr');console.warn(e);}
-    await sleep(250);
+    setAPI(`${chain.toUpperCase()}: normal tx...`,'ald');
+    const txs=await escanFetch(base,'txlist',addr,key);
+    const sym={eth:'ETH',bsc:'BNB',polygon:'MATIC',arbitrum:'ETH',base:'ETH'}[chain]||'ETH';
+    for(const t of txs){
+      if(minTs&&parseInt(t.timeStamp)<minTs)break;
+      const from=t.from.toLowerCase(),to=(t.to||'').toLowerCase();
+      if(!from||!to)continue;
+      results.push({
+        hash:t.hash,from,to,
+        value:parseInt(t.value||0)/1e18,
+        ts:parseInt(t.timeStamp),
+        tokenSymbol:sym,
+        dir:from===addr.toLowerCase()?'out':'in',
+        isInternal:false,
+      });
+    }
+    await sleep(220);
   }
 
-  if(txType==='all'||txType==='tokens'){
-    try{
-      setAPI(`${chain.toUpperCase()} ERC-20...`,'ald');
-      let url=`${base}?module=account&action=tokentx&address=${addr}&startblock=${startblock}&endblock=99999999&sort=desc&apikey=${key||'YourApiKeyToken'}`;
-      if(tokenContract) url+=`&contractaddress=${tokenContract}`;
-      const r=await fetch(url);
-      const d=await r.json();
-      if(d.status==='1'&&Array.isArray(d.result)){
-        for(const t of d.result.slice(0,100)){
-          if(minTs&&parseInt(t.timeStamp)<minTs) break;
-          results.push({
-            hash:t.hash,
-            from:t.from.toLowerCase(),
-            to:t.to.toLowerCase(),
-            value:parseInt(t.value||0)/Math.pow(10,parseInt(t.tokenDecimal||18)),
-            ts:parseInt(t.timeStamp),
-            tokenSymbol:t.tokenSymbol||'TOKEN',
-            tokenName:t.tokenName||'',
-            tokenContract:t.contractAddress,
-            dir:t.from.toLowerCase()===addr.toLowerCase()?'out':'in',
-            isToken:true,
-          });
-        }
-        setAPI(`${chain.toUpperCase()} ✓ +${results.length}tx`,'aok');
-      }
-    }catch(e){console.warn('ERC20 fetch error',e);}
-    await sleep(250);
+  // 2. Internal transactions (catches Gnosis Safe executions)
+  setAPI(`${chain.toUpperCase()}: internal tx...`,'ald');
+  const itxs=await escanFetch(base,'txlistinternal',addr,key);
+  for(const t of itxs){
+    if(minTs&&parseInt(t.timeStamp)<minTs)break;
+    const from=(t.from||'').toLowerCase(),to=(t.to||'').toLowerCase();
+    if(!from||!to||(!from&&!to))continue;
+    const sym={eth:'ETH',bsc:'BNB',polygon:'MATIC',arbitrum:'ETH',base:'ETH'}[chain]||'ETH';
+    results.push({
+      hash:t.hash,from,to,
+      value:parseInt(t.value||0)/1e18,
+      ts:parseInt(t.timeStamp),
+      tokenSymbol:sym,
+      dir:from===addr.toLowerCase()?'out':'in',
+      isInternal:true,
+    });
   }
+  await sleep(220);
+
+  // 3. ERC-20 token transfers
+  if(txType==='all'||txType==='tokens'){
+    setAPI(`${chain.toUpperCase()}: ERC-20...`,'ald');
+    const extra=tokenContract?`&contractaddress=${tokenContract}`:'';
+    const tokTxs=await escanFetch(base,'tokentx',addr,key,extra);
+    for(const t of tokTxs){
+      if(minTs&&parseInt(t.timeStamp)<minTs)break;
+      const from=(t.from||'').toLowerCase(),to=(t.to||'').toLowerCase();
+      if(!from||!to)continue;
+      results.push({
+        hash:t.hash,from,to,
+        value:parseInt(t.value||0)/Math.pow(10,parseInt(t.tokenDecimal||18)),
+        ts:parseInt(t.timeStamp),
+        tokenSymbol:t.tokenSymbol||'TOKEN',
+        tokenName:t.tokenName||'',
+        tokenContract:t.contractAddress,
+        dir:from===addr.toLowerCase()?'out':'in',
+        isToken:true,
+      });
+    }
+    await sleep(220);
+  }
+
+  setAPI(`${chain.toUpperCase()} ✓ ${results.length} tx found`,'aok');
 
   // Deduplicate
   const seen=new Set();
@@ -439,6 +441,19 @@ async function fetchEVM(addr, chain, minTs){
     const k=(t.hash||'')+(t.from||'')+(t.to||'')+(t.tokenSymbol||'');
     if(seen.has(k))return false;seen.add(k);return true;
   });
+}
+
+// Check if address is a contract (Gnosis Safe etc)
+async function checkIsContract(addr, chain){
+  const key=getKey();
+  const base=ESCAN[chain]||ESCAN.eth;
+  try{
+    const url=`${base}?module=proxy&action=eth_getCode&address=${addr}&tag=latest&apikey=${key||'YourApiKeyToken'}`;
+    const r=await fetch(url);
+    const d=await r.json();
+    // If result is '0x' it's an EOA, otherwise it's a contract
+    return d.result&&d.result!=='0x'&&d.result.length>2;
+  }catch{return false;}
 }
 
 async function fetchTON(addr,minTs){
@@ -492,10 +507,10 @@ async function fetchTRON(addr,minTs){
 }
 
 async function fetchTxs(addr,chain,minTs){
-  if(ESCAN[chain]) return fetchEVM(addr,chain,minTs);
-  if(chain==='ton') return fetchTON(addr,minTs);
-  if(chain==='btc') return fetchBTC(addr,minTs);
-  if(chain==='tron') return fetchTRON(addr,minTs);
+  if(ESCAN[chain])return fetchEVM(addr,chain,minTs);
+  if(chain==='ton')return fetchTON(addr,minTs);
+  if(chain==='btc')return fetchBTC(addr,minTs);
+  if(chain==='tron')return fetchTRON(addr,minTs);
   return[];
 }
 
@@ -523,7 +538,9 @@ function detectConsol(nodes,edges){
 async function buildTree(rootAddr){
   const{chain,period,depth:maxD}=S;
   const minTs=cutoff(period);
-  S.nodes=[];S.edges=[];S.pos={};S.vel={};S.data={};S.sel=null;selAddr=null;S.consolMap=new Set();
+  S.nodes=[];S.edges=[];S.pos={};S.vel={};S.data={};S.sel=null;selAddr=null;
+  S.consolMap=new Set();S.safeSet=new Set();
+
   const visited=new Set();
   const queue=[{addr:rootAddr,depth:0,parentId:null,edgeDir:null}];
 
@@ -532,24 +549,53 @@ async function buildTree(rootAddr){
     const key=addr.toLowerCase();
     if(visited.has(key)||S.excluded.has(key))continue;
     visited.add(key);
-    showLoad(`Depth ${depth}/${maxD}`,`Address: ${sh(addr)}<br>Nodes loaded: ${visited.size}`);
+
+    showLoad(`Depth ${depth}/${maxD} — fetching...`,`Address: ${sh(addr)}<br>Nodes: ${visited.size}`);
+
+    // Check if it's a contract
+    let isContract=false;
+    if(ESCAN[chain]){
+      isContract=await checkIsContract(addr,chain);
+      if(isContract)S.safeSet.add(addr.toLowerCase());
+      await sleep(150);
+    }
+
     let txs=[];
     try{txs=await fetchTxs(addr,chain,minTs);}catch(e){}
-    txs=txs.filter(t=>{const cp=((t.dir==='out'?t.to:t.from)||'').toLowerCase();return!S.excluded.has(cp);});
-    await sleep(250);
-    S.data[addr]={txs,depth};
-    S.nodes.push({id:addr,label:sh(addr),addr,depth,isRoot:depth===0,txCount:txs.length});
-    if(parentId)S.edges.push({from:parentId,to:addr,dir:edgeDir||'out',isCex:!!CEX[addr.toLowerCase()]});
+
+    // filter excluded counterparties
+    txs=txs.filter(t=>{
+      const cp=((t.dir==='out'?t.to:t.from)||'').toLowerCase();
+      return!S.excluded.has(cp);
+    });
+
+    S.data[addr]={txs,depth,isContract};
+    S.nodes.push({
+      id:addr,label:sh(addr),addr,depth,
+      isRoot:depth===0,txCount:txs.length,
+      isContract,isSafe:isContract,
+    });
+
+    if(parentId){
+      S.edges.push({
+        from:parentId,to:addr,
+        dir:edgeDir||'out',
+        isCex:!!CEX[addr.toLowerCase()],
+      });
+    }
+
     if(depth<maxD){
       const seen=new Set();
-      for(const tx of txs){
+      // Sort: prioritize token transfers (more useful for analysis)
+      const sorted=[...txs].sort((a,b)=>(b.isToken?1:0)-(a.isToken?1:0));
+      for(const tx of sorted){
         const cp=tx.dir==='out'?tx.to:tx.from;
         if(!cp)continue;
         const cpk=cp.toLowerCase();
         if(visited.has(cpk)||seen.has(cpk)||S.excluded.has(cpk))continue;
         seen.add(cpk);
         queue.push({addr:cp,depth:depth+1,parentId:addr,edgeDir:tx.dir});
-        if(seen.size>=7)break;
+        if(seen.size>=8)break;
       }
     }
   }
@@ -566,6 +612,7 @@ async function buildTree(rootAddr){
       }
     }
   }
+
   S.consolMap=detectConsol(S.nodes,S.edges);
 }
 
@@ -635,6 +682,7 @@ function render(){
     nh+=`<g data-id="${n.id}" style="cursor:pointer" opacity="${op}">`;
     if(isC&&!isSanc)nh+=`<circle cx="${p.x}" cy="${p.y}" r="${r+10}" fill="none" stroke="#ec4899" stroke-width="1.5" opacity="0.4" style="animation:consol-pulse 2s ease-in-out infinite" filter="url(#glow)"/>`;
     if(isSanc)nh+=`<circle cx="${p.x}" cy="${p.y}" r="${r+8}" fill="#1a0000" stroke="#ef4444" stroke-width="1" opacity="0.5" style="animation:sanc-pulse 1.2s ease-in-out infinite"/>`;
+    if(n.isSafe&&!isSanc&&!isC)nh+=`<circle cx="${p.x}" cy="${p.y}" r="${r+6}" fill="none" stroke="#eab308" stroke-width="1" stroke-dasharray="3 2" opacity="0.5"/>`;
     if(isSel)nh+=`<circle cx="${p.x}" cy="${p.y}" r="${r+13}" fill="none" stroke="${c.s}" stroke-width="1" stroke-dasharray="4 3" opacity="0.35"/>`;
     nh+=`<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${c.bg}" stroke="${c.s}" stroke-width="${n.isRoot?2.5:isSel?2:1.5}"${n.isRoot||isSanc||isC?' filter="url(#glow)"':''}/>`;
     const lbl=n.isCex?n.cexLabel:sh(n.id);
@@ -643,6 +691,7 @@ function render(){
     else if(n.isCex)nh+=`<text x="${p.x}" y="${p.y+r+12}" text-anchor="middle" font-size="7" fill="#38bdf8" font-family="'Syne',sans-serif" font-weight="700">CEX</text>`;
     else if(isSanc)nh+=`<text x="${p.x}" y="${p.y+r+12}" text-anchor="middle" font-size="7" fill="#ef4444" font-family="'Syne',sans-serif" font-weight="700">⚠ SANCTION</text>`;
     else if(isC)nh+=`<text x="${p.x}" y="${p.y+r+12}" text-anchor="middle" font-size="7" fill="#ec4899" font-family="'Syne',sans-serif" font-weight="700">CONSOL</text>`;
+    else if(n.isSafe)nh+=`<text x="${p.x}" y="${p.y+r+12}" text-anchor="middle" font-size="7" fill="#eab308" font-family="'Syne',sans-serif" font-weight="700">SAFE</text>`;
     else nh+=`<text x="${p.x}" y="${p.y+r+12}" text-anchor="middle" font-size="8" fill="${c.s}" opacity="0.6" font-family="'Space Mono',monospace">${n.txCount}tx</text>`;
     nh+=`</g>`;
   }
@@ -655,7 +704,7 @@ function render(){
     g.addEventListener('mouseenter',e=>showTT(e,id));
     g.addEventListener('mouseleave',hideTT);
   });
-  setStatus(`Nodes: ${nodes.length} | Edges: ${edges.length} | CEX: ${nodes.filter(n=>n.isCex).length} | Consol: ${consolMap.size} | Zoom: ${(S.scale*100).toFixed(0)}%`);
+  setStatus(`Nodes: ${nodes.length} | Edges: ${edges.length} | CEX: ${nodes.filter(n=>n.isCex).length} | Consol: ${consolMap.size} | Safe: ${S.safeSet.size} | Zoom: ${(S.scale*100).toFixed(0)}%`);
 }
 
 // ═══════════════════════════════════════
@@ -690,7 +739,7 @@ function sim(){
 }
 
 // ═══════════════════════════════════════
-// NODE SIDEBAR
+// NODE PANEL
 // ═══════════════════════════════════════
 function selNode(id){
   S.sel=S.sel===id?null:id;selAddr=S.sel;
@@ -710,15 +759,17 @@ function selNode(id){
 function buildNodePane(id){
   const n=S.nodes.find(x=>x.id===id);if(!n)return;
   const el=document.getElementById('nabox');el.textContent=id;el.classList.remove('copied');
-  const isC=S.consolMap.has(id.toLowerCase()),isSanc=SANC.has(id.toLowerCase()),isCex=!!CEX[id.toLowerCase()];
+  const isC=S.consolMap.has(id.toLowerCase()),isSanc=SANC.has(id.toLowerCase()),
+        isCex=!!CEX[id.toLowerCase()],isSafe=S.safeSet.has(id.toLowerCase());
+
   let rc='r-clean',ri='✅',rl='CLEAN',rd='No threats detected';
   if(isSanc){rc='r-high';ri='🚨';rl='SANCTIONED';rd='Found in OFAC/sanctions list';}
   else if(isCex){rc='r-med';ri='🏦';rl='CEX WALLET';rd=`Known ${CEX[id.toLowerCase()]} address`;}
-  else if(isC){rc='r-pink';ri='🔀';rl='CONSOLIDATION HUB';rd='Receives from 3+ graph nodes — aggregation pattern';}
+  else if(isC){rc='r-pink';ri='🔀';rl='CONSOLIDATION HUB';rd='Receives from 3+ graph nodes';}
   else{
     const txs=S.data[id]?.txs||[];
     const bad=txs.find(t=>SANC.has(((t.dir==='out'?t.to:t.from)||'').toLowerCase()));
-    if(bad){rc='r-high';ri='⚠️';rl='SANCTIONS CONTACT';rd='Interacted with a sanctioned address';}
+    if(bad){rc='r-high';ri='⚠️';rl='SANCTIONS CONTACT';rd='Interacted with sanctioned address';}
     else{
       const cexTxs=txs.filter(t=>CEX[((t.dir==='out'?t.to:t.from)||'').toLowerCase()]);
       if(cexTxs.length){
@@ -727,10 +778,12 @@ function buildNodePane(id){
       }
     }
   }
+
   document.getElementById('risk-wrap').innerHTML=`
     <div class="risk-card ${rc}">
       <div class="rlabel">${ri} ${rl}</div>
       <div style="color:var(--muted2);font-size:10px">${rd}</div>
+      ${isSafe?'<div style="margin-top:4px"><span class="ctag ctag-safe">🔐 Gnosis Safe / Contract</span></div>':''}
       ${isC?'<div style="margin-top:4px"><span class="ctag ctag-consol">🔀 CONSOLIDATION</span></div>':''}
       ${isCex?`<div style="margin-top:4px"><span class="ctag ctag-cex">🏦 ${CEX[id.toLowerCase()]}</span></div>`:''}
     </div>`;
@@ -748,8 +801,9 @@ function buildNodePane(id){
   const inT=txs.filter(t=>t.dir==='in'),outT=txs.filter(t=>t.dir==='out');
   const inV=inT.reduce((s,t)=>s+(t.value||0),0),outV=outT.reduce((s,t)=>s+(t.value||0),0);
   document.getElementById('nstats').innerHTML=`
+    <div class="srow"><span style="color:var(--muted2)">Type</span><span>${isSafe?'🔐 Contract':'👤 EOA'}</span></div>
     <div class="srow"><span style="color:var(--muted2)">Depth</span><span>${n.depth===99?'CEX':n.depth}</span></div>
-    <div class="srow"><span style="color:var(--muted2)">Transactions</span><span>${txs.length}</span></div>
+    <div class="srow"><span style="color:var(--muted2)">Transactions loaded</span><span>${txs.length}</span></div>
     <div class="srow"><span class="tin">Incoming</span><span class="tin">${inT.length} (${fmt(inV)})</span></div>
     <div class="srow"><span class="tout">Outgoing</span><span class="tout">${outT.length} (${fmt(outV)})</span></div>
     <div class="srow"><span style="color:var(--muted2)">Graph edges</span><span>${S.edges.filter(e=>e.from===id||e.to===id).length}</span></div>
@@ -762,19 +816,19 @@ function buildNodePane(id){
     :'<div style="color:var(--muted);font-size:10px">No data</div>';
 
   document.getElementById('ntxs').innerHTML=txs.length
-    ?txs.slice(0,8).map(t=>{
+    ?txs.slice(0,10).map(t=>{
       const cp=t.dir==='in'?t.from:t.to;
       const cexLbl=CEX[(cp||'').toLowerCase()];
       const isPC=S.consolMap.has((t.to||'').toLowerCase());
       return`<div class="txrow">
         <span class="${isPC?'tpink':t.dir==='in'?'tin':'tout'}">${t.dir==='in'?'▼':'▲'}</span>
-        <span class="ctag ctag-tok">${t.tokenSymbol||'?'}</span>
+        <span class="ctag ctag-tok">${t.tokenSymbol||'?'}${t.isInternal?' (int)':''}</span>
         <span style="margin:0 3px">${fmt(t.value)}</span>
         <span style="color:var(--muted2)">${cexLbl?`🏦${cexLbl}`:sh(cp)||'?'}</span>
         <span style="color:var(--muted);font-size:9px;margin-left:3px">${t.ts?new Date(t.ts*1000).toLocaleDateString():''}</span>
       </div>`;
     }).join('')
-    :'<div style="color:var(--muted);font-size:10px;padding:4px 0">No transactions</div>';
+    :'<div style="color:var(--muted);font-size:10px;padding:4px 0">No transactions loaded</div>';
 
   buildOsint(id);
 }
@@ -800,11 +854,14 @@ function buildOsint(addr){
     <div class="osint-row"><div class="osint-ico">${l.i}</div>
     <div><div class="osint-src">${l.s}</div>
     <a class="osint-link" href="${l.u}" target="_blank">Search ↗</a></div></div>`).join('');
-  const isSanc=SANC.has(addr.toLowerCase()),isCex=!!CEX[addr.toLowerCase()],isC=S.consolMap.has(addr.toLowerCase());
+
+  const isSanc=SANC.has(addr.toLowerCase()),isCex=!!CEX[addr.toLowerCase()],
+        isC=S.consolMap.has(addr.toLowerCase()),isSafe=S.safeSet.has(addr.toLowerCase());
   document.getElementById('osint-checks').innerHTML=`
     <div class="srow"><span style="color:var(--muted2)">OFAC Sanctions</span><span style="color:${isSanc?'#ef4444':'#10b981'}">${isSanc?'🚨 YES':'✅ No'}</span></div>
     <div class="srow"><span style="color:var(--muted2)">Known CEX</span><span style="color:${isCex?'#38bdf8':'var(--muted)'}">${isCex?`🏦 ${CEX[addr.toLowerCase()]}`:'-'}</span></div>
     <div class="srow"><span style="color:var(--pink)">Consolidation</span><span style="color:${isC?'#ec4899':'var(--muted)'}">${isC?'🔀 YES':'-'}</span></div>
+    <div class="srow"><span style="color:var(--muted2)">Contract type</span><span style="color:${isSafe?'#eab308':'var(--muted)'}">${isSafe?'🔐 Contract/Safe':'👤 EOA'}</span></div>
     <div class="srow"><span style="color:var(--muted2)">Network</span><span>${S.chain.toUpperCase()}</span></div>`;
 }
 
@@ -834,8 +891,7 @@ function updateBC(){
 }
 function goHist(i){
   const h=S.hist[i];if(!h)return;
-  S.hist=S.hist.slice(0,i);
-  Object.assign(S,{chain:h.chain,period:h.period,depth:h.depth});
+  S.hist=S.hist.slice(0,i);Object.assign(S,{chain:h.chain,period:h.period,depth:h.depth});
   document.getElementById('csel').value=h.chain;
   document.getElementById('addr-input').value=h.addr;
   document.getElementById('depth-input').value=h.depth;
@@ -875,12 +931,15 @@ function applyXf(){document.getElementById('zg').setAttribute('transform',`trans
 // ═══════════════════════════════════════
 function showTT(e,id){
   const n=S.nodes.find(x=>x.id===id);
-  const cex=CEX[id.toLowerCase()],sanc=SANC.has(id.toLowerCase()),consol=S.consolMap.has(id.toLowerCase());
+  const cex=CEX[id.toLowerCase()],sanc=SANC.has(id.toLowerCase()),
+        consol=S.consolMap.has(id.toLowerCase()),safe=S.safeSet.has(id.toLowerCase());
   const tt=document.getElementById('tt');
-  tt.innerHTML=`<div style="color:${sanc?'#ef4444':consol?'#ec4899':cex?'#38bdf8':'var(--accent)'};margin-bottom:3px;font-weight:700">${sanc?'🚨':consol?'🔀':cex?'🏦':''}${cex||sh(id)}</div>
+  tt.innerHTML=`<div style="color:${sanc?'#ef4444':consol?'#ec4899':cex?'#38bdf8':safe?'#eab308':'var(--accent)'};margin-bottom:3px;font-weight:700">
+    ${sanc?'🚨':consol?'🔀':cex?'🏦':safe?'🔐':''}${cex||sh(id)}</div>
     <div style="color:var(--muted2)">Depth ${n?.depth===99?'CEX':n?.depth??'?'} · ${n?.txCount??0}tx</div>
     ${sanc?'<div style="color:#ef4444;font-size:9px">SANCTIONED</div>':''}
     ${consol?'<div style="color:#ec4899;font-size:9px">CONSOLIDATION HUB</div>':''}
+    ${safe?'<div style="color:#eab308;font-size:9px">Gnosis Safe / Contract</div>':''}
     ${cex?`<div style="color:#38bdf8;font-size:9px">${cex} wallet</div>`:''}
     <div style="color:var(--muted);font-size:9px;margin-top:3px">Dbl-click → drill down</div>`;
   tt.style.display='block';tt.style.left=(e.clientX+12)+'px';tt.style.top=(e.clientY-16)+'px';
@@ -894,10 +953,9 @@ async function startExplore(){
   const addr=document.getElementById('addr-input').value.trim();
   if(!addr){toast('⚠ Enter an address','#f59e0b');return;}
   const chain=document.getElementById('csel').value;
-  if(ESCAN[chain]&&!getKey()){toast('⚠ Etherscan API key required for EVM chains','#f59e0b');return;}
+  if(ESCAN[chain]&&!getKey()){toast('⚠ Etherscan API key required','#f59e0b');return;}
   S.hist=[];runExplore(addr);
 }
-
 async function runExplore(addr){
   S.chain=document.getElementById('csel').value;
   S.period=parseInt(document.querySelector('.pbtn.active').dataset.days);
@@ -914,12 +972,12 @@ async function runExplore(addr){
     if(SANC.has(addr.toLowerCase()))toast('🚨 ROOT IS SANCTIONED','#ef4444');
     else if(S.consolMap.size>0)toast(`🔀 ${S.consolMap.size} consolidation hub(s)`,'#ec4899');
     else if(S.nodes.filter(n=>n.isCex).length>0)toast(`🏦 ${S.nodes.filter(n=>n.isCex).length} CEX deposit(s) found`,'#f59e0b');
+    else if(S.safeSet.size>0)toast(`🔐 ${S.safeSet.size} contract(s) detected`,'#eab308');
     S.simOn=true;requestAnimationFrame(sim);
     setTimeout(()=>{S.simOn=false;},8000);
   }catch(e){showErr(`Error: ${e.message}`);}
   document.getElementById('gobtn').disabled=false;
 }
-
 function setSz(){
   const w=document.getElementById('canvas-wrap');
   S.W=w.clientWidth;S.H=w.clientHeight;S.CX=S.W/2;S.CY=S.H/2;
