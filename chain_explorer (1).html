@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chain Tracer — Wallet Intelligence</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06080f;--bg2:#0b0f1a;--bg3:#0f1525;
+  --border:#1a2236;--border2:#243050;
+  --accent:#00e5ff;--accent2:#7c3aed;--accent3:#f59e0b;
+  --green:#10b981;--red:#ef4444;--pink:#ec4899;
+  --text:#e2e8f0;--muted:#4a5568;--muted2:#64748b;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Space Mono',monospace}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,255,0.01) 2px,rgba(0,229,255,0.01) 4px);pointer-events:none;z-index:9999}
+#app{display:flex;flex-direction:column;height:100vh}
+
+/* HEADER */
+#header{padding:8px 14px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;gap:7px;flex-shrink:0;position:relative;flex-wrap:wrap}
+#header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0.4}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--accent);letter-spacing:2px;white-space:nowrap;text-shadow:0 0 20px rgba(0,229,255,0.4)}
+.logo span{color:var(--muted2);font-size:9px}
+.ctl{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:'Space Mono',monospace;font-size:10px;padding:5px 7px;border-radius:4px;outline:none}
+select.ctl{cursor:pointer}
+.ctl:focus{border-color:var(--accent)}
+.ctl::placeholder{color:var(--muted)}
+#addr-input{flex:1;min-width:160px}
+.row2{display:flex;align-items:center;gap:7px;width:100%;padding-top:6px;border-top:1px solid var(--border);flex-wrap:wrap}
+#exclude-input{flex:1;min-width:160px}
+#token-input{width:120px}
+#apikey-input{width:200px;color:var(--accent3)}
+.tx-sel{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:'Space Mono',monospace;font-size:10px;padding:5px 6px;border-radius:4px;outline:none;cursor:pointer}
+.pbtn{background:var(--bg3);border:1px solid var(--border2);color:var(--muted2);font-family:'Space Mono',monospace;font-size:10px;padding:5px 8px;border-radius:4px;cursor:pointer;white-space:nowrap}
+.pbtn.active{background:#1a0a3e;border-color:var(--accent2);color:var(--accent2)}
+#dw{display:flex;align-items:center;gap:4px;white-space:nowrap}
+#dw label{font-size:9px;color:var(--muted2)}
+#depth-input{width:34px;background:var(--bg3);border:1px solid var(--border2);color:var(--accent3);font-family:'Space Mono',monospace;font-size:10px;padding:5px 3px;border-radius:4px;outline:none;text-align:center}
+.go-btn{background:linear-gradient(135deg,#00b4cc,#0080ff);border:none;color:#000;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;padding:6px 14px;border-radius:4px;cursor:pointer;white-space:nowrap}
+.go-btn:disabled{opacity:0.4;cursor:not-allowed}
+#exclude-tags{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.ex-tag{background:#1a0a0a;border:1px solid #3a1a1a;border-radius:3px;padding:2px 6px;font-size:9px;color:#f87171;display:flex;align-items:center;gap:4px}
+.ex-tag button{background:none;border:none;color:#f87171;cursor:pointer;font-size:10px;padding:0}
+
+/* BREADCRUMB */
+#breadcrumb{padding:4px 14px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px;min-height:26px;flex-shrink:0;overflow-x:auto}
+.bc-item{cursor:pointer;color:var(--accent);opacity:0.7;white-space:nowrap}.bc-item:hover{opacity:1}
+.bc-item.cur{color:var(--text);opacity:1;cursor:default}.bc-sep{color:var(--muted)}
+
+/* MAIN */
+#main{display:flex;flex:1;overflow:hidden}
+#canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg)}
+#graph-svg{width:100%;height:100%;display:block;cursor:grab}
+
+/* SIDEBAR */
+#sidebar{width:285px;border-left:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+#tab-bar{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:7px 2px;text-align:center;font-size:9px;font-family:'Syne',sans-serif;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+#tab-content{flex:1;overflow-y:auto;padding:12px}
+.sec{font-family:'Syne',sans-serif;font-size:9px;font-weight:600;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;padding-bottom:3px;border-bottom:1px solid var(--border);margin-top:13px}
+.sec:first-child{margin-top:0}
+.srow{display:flex;justify-content:space-between;padding:3px 0;font-size:10px;border-bottom:1px solid var(--border)}
+.srow:last-child{border:none}
+.risk-card{border-radius:6px;padding:9px 11px;margin-bottom:9px}
+.r-clean{background:#001a10;border:1px solid #10b981}
+.r-med{background:#1a1000;border:1px solid #f59e0b}
+.r-high{background:#1a0000;border:1px solid #ef4444}
+.r-pink{background:#1a001a;border:1px solid #ec4899}
+.rlabel{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;margin-bottom:3px}
+.ctag{display:inline-block;padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:1px;margin:2px}
+.ctag-cex{background:#0a1a2a;border:1px solid #38bdf8;color:#38bdf8}
+.ctag-sanc{background:#1a0000;border:1px solid #ef4444;color:#ef4444}
+.ctag-consol{background:#1a001a;border:1px solid #ec4899;color:#ec4899}
+.ctag-tok{background:#0a1a0a;border:1px solid #10b981;color:#10b981;font-size:8px;padding:1px 5px}
+.abox{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:8px;word-break:break-all;color:var(--accent);font-size:10px;line-height:1.6;margin-bottom:7px;cursor:pointer;position:relative}
+.abox:hover{border-color:var(--accent)}
+.abox::after{content:'📋';position:absolute;top:5px;right:6px;font-size:10px}
+.abox.copied::after{content:'✓';color:var(--green)}
+.elinks{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.elink{padding:3px 6px;border:1px solid var(--border2);border-radius:4px;color:var(--accent);text-decoration:none;font-size:9px;white-space:nowrap}
+.elink:hover{border-color:var(--accent)}
+.abtn{display:block;width:100%;padding:7px;margin-bottom:5px;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;color:var(--accent2);font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;text-align:center}
+.abtn:hover{border-color:var(--accent2)}
+.txrow{padding:4px 0;border-bottom:1px solid var(--border);font-size:10px}.txrow:last-child{border:none}
+.tin{color:var(--green)}.tout{color:var(--red)}.tpink{color:var(--pink)}
+.lrow{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:10px;color:var(--muted2)}
+.ldot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+#loading{display:none;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:12px;text-align:center;padding:20px}
+.spin{width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#ltxt{color:var(--text);font-size:12px}#lsub{font-size:9px;color:var(--muted);max-width:360px;line-height:1.6}
+#empty{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:9px;color:var(--muted)}
+.eico{font-size:40px;opacity:0.2}.etxt{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--muted2)}
+.ehint{font-size:10px;text-align:center;max-width:290px;line-height:1.9}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(50px);padding:6px 14px;border-radius:4px;font-size:11px;font-weight:700;transition:transform .25s;z-index:9998;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#tt{position:fixed;pointer-events:none;z-index:9997;background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:6px 8px;font-size:10px;max-width:200px;word-break:break-all;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.5)}
+#sbar{position:absolute;bottom:8px;left:10px;font-size:9px;color:var(--muted);pointer-events:none}
+#api-ind{position:absolute;top:8px;right:10px;font-size:9px;padding:3px 8px;border-radius:3px;border:1px solid var(--border);background:var(--bg2);pointer-events:none}
+.aok{color:var(--green)}.aerr{color:var(--red)}.ald{color:var(--accent3)}
+@keyframes consol-pulse{0%,100%{opacity:0.5}50%{opacity:1}}
+@keyframes sanc-pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.osint-row{padding:5px 0;border-bottom:1px solid var(--border);font-size:10px;display:flex;align-items:flex-start;gap:6px}
+.osint-row:last-child{border:none}
+.osint-ico{font-size:12px;flex-shrink:0;margin-top:1px}
+.osint-src{color:var(--muted2);font-size:9px;margin-bottom:1px}
+.osint-link{color:var(--accent3);text-decoration:none;font-size:10px}
+.osint-link:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <div class="logo">⬡ CHAIN TRACER <span>OSINT</span></div>
+    <select class="ctl" id="csel" style="width:90px">
+      <option value="eth">ETH</option>
+      <option value="bsc">BSC</option>
+      <option value="polygon">Polygon</option>
+      <option value="arbitrum">Arbitrum</option>
+      <option value="base">Base</option>
+      <option value="ton">TON</option>
+      <option value="btc">Bitcoin</option>
+      <option value="tron">TRON</option>
+    </select>
+    <input id="addr-input" class="ctl" type="text" placeholder="Root wallet address..." autocomplete="off" spellcheck="false"/>
+    <select class="tx-sel" id="tx-type">
+      <option value="all">Native + Tokens</option>
+      <option value="native">Native only</option>
+      <option value="tokens">Tokens only</option>
+    </select>
+    <input id="token-input" class="ctl" type="text" placeholder="Token contract (opt.)"/>
+    <div id="dw"><label>Depth:</label><input id="depth-input" type="number" min="1" max="5" value="2"/></div>
+    <button class="pbtn active" data-days="90">90d</button>
+    <button class="pbtn" data-days="365">1y</button>
+    <button class="pbtn" data-days="730">2y</button>
+    <button class="go-btn" id="gobtn" onclick="startExplore()">▶ ANALYZE</button>
+    <div class="row2">
+      <span style="font-size:9px;color:var(--accent3);white-space:nowrap">🔑 API Key:</span>
+      <input id="apikey-input" class="ctl" type="password" placeholder="Etherscan API key..." autocomplete="off"/>
+      <span style="font-size:9px;color:var(--muted2);white-space:nowrap">🚫 Exclude:</span>
+      <input id="exclude-input" class="ctl" type="text" placeholder="Address + Enter..."/>
+      <div id="exclude-tags"></div>
+    </div>
+  </div>
+  <div id="breadcrumb"><span style="color:var(--muted);font-size:10px">Navigation history...</span></div>
+  <div id="main">
+    <div id="canvas-wrap">
+      <div id="loading">
+        <div class="spin"></div>
+        <div id="ltxt">Loading...</div>
+        <div id="lsub"></div>
+      </div>
+      <div id="empty">
+        <div class="eico">⬡</div>
+        <div class="etxt">Enter a wallet address</div>
+        <div class="ehint">
+          Supports ETH, BSC, Polygon, Arbitrum, Base, TON, Bitcoin, TRON<br><br>
+          Tracks <b>native + ERC-20 token</b> transfers<br>
+          Detects <b>CEX deposits</b>, <b>sanctions</b>, <b>consolidation</b><br><br>
+          Enter your <b>Etherscan API key</b> above for EVM chains.<br>
+          Get one free at <a href="https://etherscan.io/register" target="_blank" style="color:var(--accent)">etherscan.io</a><br><br>
+          <b>Click</b> — details · <b>Dbl-click</b> — drill · <b>Scroll</b> — zoom
+        </div>
+      </div>
+      <svg id="graph-svg" style="display:none">
+        <defs>
+          <marker id="mi" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto"><path d="M0,0 L0,5 L6,2.5z" fill="#10b981"/></marker>
+          <marker id="mo" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto"><path d="M0,0 L0,5 L6,2.5z" fill="#ef4444"/></marker>
+          <marker id="mc" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto"><path d="M0,0 L0,5 L6,2.5z" fill="#38bdf8"/></marker>
+          <marker id="mk" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto"><path d="M0,0 L0,5 L6,2.5z" fill="#ec4899"/></marker>
+          <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <g id="zg"><g id="EL"></g><g id="NL"></g></g>
+      </svg>
+      <div id="sbar"></div>
+      <div id="api-ind" class="ald">⬡ Ready</div>
+    </div>
+    <div id="sidebar">
+      <div id="tab-bar">
+        <div class="tab active" data-tab="legend" onclick="switchTab('legend')">LEGEND</div>
+        <div class="tab" data-tab="node" onclick="switchTab('node')" id="tab-node" style="display:none">NODE</div>
+        <div class="tab" data-tab="osint" onclick="switchTab('osint')" id="tab-osint" style="display:none">OSINT</div>
+      </div>
+      <div id="tab-content">
+        <div id="pane-legend">
+          <div class="sec">Node Types</div>
+          <div class="lrow"><div class="ldot" style="border:2px solid #00e5ff;background:#001a1f"></div>Root address</div>
+          <div class="lrow"><div class="ldot" style="border:2px solid #7c3aed;background:#12082a"></div>Depth 1</div>
+          <div class="lrow"><div class="ldot" style="border:2px solid #f59e0b;background:#1a1200"></div>Depth 2</div>
+          <div class="lrow"><div class="ldot" style="border:2px solid #10b981;background:#001a10"></div>Depth 3+</div>
+          <div class="lrow"><div class="ldot" style="border:2px solid #38bdf8;background:#001a2a"></div>CEX wallet</div>
+          <div class="lrow"><div class="ldot" style="border:2px solid #ef4444;background:#1a0000"></div>Sanctioned</div>
+          <div class="lrow"><div class="ldot" style="border:2px solid #ec4899;background:#1a0010;box-shadow:0 0 6px #ec489966"></div>Consolidation hub</div>
+          <div class="sec">Edges</div>
+          <div class="lrow"><div style="width:20px;height:2px;background:#10b981;flex-shrink:0"></div>Incoming</div>
+          <div class="lrow"><div style="width:20px;height:2px;background:#ef4444;flex-shrink:0"></div>Outgoing</div>
+          <div class="lrow"><div style="width:20px;height:2px;background:#38bdf8;flex-shrink:0"></div>→ CEX</div>
+          <div class="lrow"><div style="width:20px;height:2px;background:#ec4899;flex-shrink:0"></div>Consolidation</div>
+          <div class="sec">API Keys</div>
+          <div style="color:var(--muted);font-size:10px;line-height:1.9">
+            <b style="color:var(--muted2)">EVM (ETH/BSC/etc):</b><br>
+            Etherscan API key required.<br>
+            Free at <a href="https://etherscan.io/myapikey" target="_blank" style="color:var(--accent)">etherscan.io/myapikey</a><br><br>
+            <b style="color:var(--muted2)">TON / BTC / TRON:</b><br>
+            No key needed.
+          </div>
+          <div class="sec">Controls</div>
+          <div style="color:var(--muted2);font-size:10px;line-height:2">🖱 Drag node — move<br>🔍 Scroll — zoom<br>👆 Click — details<br>🌐 Dbl-click — drill<br>🖱 Drag bg — pan</div>
+        </div>
+        <div id="pane-node" style="display:none">
+          <div id="risk-wrap"></div>
+          <div class="abox" id="nabox" onclick="copyAddr()"></div>
+          <div class="elinks" id="nlinks"></div>
+          <button class="abtn" onclick="drillSel()">⬡ Open new tree from this address</button>
+          <button class="abtn" onclick="excludeSel()" style="color:#f87171;border-color:#3a1a1a">🚫 Add to exclude list</button>
+          <div class="sec">Stats</div><div id="nstats"></div>
+          <div class="sec" style="margin-top:9px">Token Breakdown</div><div id="ntoks"></div>
+          <div class="sec" style="margin-top:9px">Recent Transactions</div><div id="ntxs"></div>
+        </div>
+        <div id="pane-osint" style="display:none">
+          <div id="osint-addr" style="color:var(--accent);font-size:10px;word-break:break-all;margin-bottom:10px;padding:8px;background:var(--bg3);border-radius:4px;border:1px solid var(--border2)"></div>
+          <div class="sec">Search Public Sources</div>
+          <div id="osint-links"></div>
+          <div class="sec" style="margin-top:11px">Identity Checks</div>
+          <div id="osint-checks"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+<div id="tt"></div>
+
+<script>
+// ═══════════════════════════════════════
+// CEX DATABASE
+// ═══════════════════════════════════════
+const CEX={
+  '0x28c6c06298d514db089934071355e5743bf21d60':'Binance',
+  '0x21a31ee1afc51d94c2efccaa2092ad1028285549':'Binance',
+  '0xdfd5293d8e347dfe59e90efd55b2956a1343963d':'Binance',
+  '0x56eddb7aa87536c09ccc2793473599fd21a8b17f':'Binance',
+  '0x9696f59e4d72e237be84ffd425dcad154bf96976':'Binance',
+  '0xa9d1e08c7793af67e9d92fe308d5697fb81d3e43':'Coinbase',
+  '0x71660c4005ba85c37ccec55d0c4493e66fe775d3':'Coinbase',
+  '0x503828976d22510aad0201ac7ec88293211d23da':'Coinbase',
+  '0x2910543af39aba0cd09dbb2d50200b3e800a63d2':'Kraken',
+  '0x0a869d79a7052c7f1b55a8ebabbea3420f0d1e13':'Kraken',
+  '0x6cc5f688a315f3dc28a7781717a9a798a59fda7b':'OKX',
+  '0x98ec059dc3adfbdd63429454aeb0c990fba4a128':'OKX',
+  '0xf89d7b9c864f589bbf53a82105107622b35eaa40':'Bybit',
+  '0x2b5634c42055806a59e9107ed44d43c426e99690':'Bybit',
+  '0x1ab4973a48dc892cd9971ece8e01dcc7688f8f23':'Bitget',
+  '0x0d0707963952f2fba59dd06f2b425ace40b492fe':'Gate.io',
+  '0x7793cd85c11a924478d358d49b05b37e91b5810f':'Gate.io',
+  '0xab5c66752a9e8167967685f1450532fb96d5d24f':'HTX',
+  '0x6748f50f686bfbca6fe8ad62b22228b87f31ff2b':'HTX',
+  '0xd6216fc19db775df9774a6e33526131da7d19a2c':'KuCoin',
+  '0xa1d8d972560c2f8144af871db508f0b0b10a3fbf':'KuCoin',
+  '0x6262998ced04146fa42253a5c0af90ca02dfd2a3':'Crypto.com',
+};
+
+const SANC=new Set([
+  '0x8589427373d6d84e98730d7795d8f6f8731fda16',
+  '0x722122df12d4e14e13ac3b6895a86e84145b6967',
+  '0xdd4c48c0b24039969fc16d1cdf626eab821d3384',
+  '0xd90e2f925da726b50c4ed8d0fb90ad053324f31b',
+  '0x910cbd523d972eb0a6f4cae4618ad62622b39dbf',
+  '0xa160cdab225685da1d56aa342ad8841c3b53f291',
+  '0x098b716b8aaf21512996dc57eb0615e2383e2f96',
+  '0xa0e1c89ef1a489c9c7de96311ed5ce5d32c20e4b',
+  '0x172370d5cd63279efa6d502dab29171933a610af',
+]);
+
+// Etherscan-compatible API endpoints
+const ESCAN={
+  eth:'https://api.etherscan.io/api',
+  bsc:'https://api.bscscan.com/api',
+  polygon:'https://api.polygonscan.com/api',
+  arbitrum:'https://api.arbiscan.io/api',
+  base:'https://api.basescan.org/api',
+};
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+const S={
+  nodes:[],edges:[],pos:{},vel:{},sel:null,drag:null,doff:{x:0,y:0},
+  simOn:false,W:800,H:600,CX:400,CY:300,
+  data:{},chain:'eth',period:90,depth:2,root:null,
+  scale:1,tx:0,ty:0,panning:false,panStart:{x:0,y:0},
+  hist:[],excluded:new Set(),consolMap:new Set(),
+};
+let selAddr=null;
+
+// ═══════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════
+function DC(id,d,isC){
+  const a=(id||'').toLowerCase();
+  if(SANC.has(a))return{s:'#ef4444',bg:'#1a0000',t:'#ef4444',type:'sanc'};
+  if(CEX[a])return{s:'#38bdf8',bg:'#001a2a',t:'#38bdf8',type:'cex'};
+  if(isC)return{s:'#ec4899',bg:'#1a0010',t:'#f9a8d4',type:'consol'};
+  if(d===0)return{s:'#00e5ff',bg:'#001a1f',t:'#00e5ff',type:'root'};
+  if(d===1)return{s:'#7c3aed',bg:'#12082a',t:'#a78bfa'};
+  if(d===2)return{s:'#f59e0b',bg:'#1a1200',t:'#fcd34d'};
+  return{s:'#10b981',bg:'#001a10',t:'#6ee7b7'};
+}
+const sh=a=>!a?'—':a.length<=12?a:a.slice(0,6)+'…'+a.slice(-4);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const cutoff=d=>d>0?Math.floor(Date.now()/1000)-d*86400:0;
+const fmt=v=>isNaN(+v)?'?':(+v).toFixed(4);
+const getKey=()=>document.getElementById('apikey-input').value.trim();
+
+function setAPI(msg,cls){const el=document.getElementById('api-ind');el.textContent=msg;el.className=cls||'ald';}
+function toast(msg,col='#10b981'){
+  const t=document.getElementById('toast');t.textContent=msg;t.style.background=col;
+  t.style.color=(col==='#ef4444'||col==='#ec4899')?'#fff':'#000';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+const setStatus=m=>document.getElementById('sbar').textContent=m;
+function showLoad(txt,sub){
+  document.getElementById('empty').style.display='none';
+  document.getElementById('graph-svg').style.display='none';
+  const l=document.getElementById('loading');l.style.display='flex';
+  document.getElementById('ltxt').textContent=txt;
+  document.getElementById('lsub').innerHTML=sub||'';
+}
+function hideLoad(){document.getElementById('loading').style.display='none';document.getElementById('graph-svg').style.display='block';}
+function showErr(msg){document.getElementById('loading').innerHTML=`<div style="color:var(--red);font-size:12px;max-width:420px;text-align:center;line-height:1.9">${msg}</div>`;}
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===t));
+  ['legend','node','osint'].forEach(p=>document.getElementById('pane-'+p).style.display=p===t?'block':'none');
+}
+
+// ═══════════════════════════════════════
+// EXCLUDE
+// ═══════════════════════════════════════
+function addExclude(addr){
+  addr=addr.trim().toLowerCase();if(!addr)return;
+  S.excluded.add(addr);renderExTags();
+  document.getElementById('exclude-input').value='';
+}
+function removeExclude(addr){S.excluded.delete(addr);renderExTags();}
+function renderExTags(){
+  document.getElementById('exclude-tags').innerHTML=[...S.excluded].map(a=>
+    `<span class="ex-tag">${sh(a)}<button onclick="removeExclude('${a}')">✕</button></span>`
+  ).join('');
+}
+document.getElementById('exclude-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter'||e.key===','){e.preventDefault();addExclude(e.target.value);}
+});
+
+// Save/load API key from localStorage
+window.addEventListener('load',()=>{
+  const saved=localStorage.getItem('ct_apikey');
+  if(saved) document.getElementById('apikey-input').value=saved;
+});
+document.getElementById('apikey-input').addEventListener('change',e=>{
+  if(e.target.value) localStorage.setItem('ct_apikey',e.target.value);
+});
+
+// ═══════════════════════════════════════
+// FETCH — ETHERSCAN COMPATIBLE
+// ═══════════════════════════════════════
+async function fetchEVM(addr, chain, minTs){
+  const key = getKey();
+  const base = ESCAN[chain] || ESCAN.eth;
+  const txType = document.getElementById('tx-type').value;
+  const tokenContract = document.getElementById('token-input').value.trim()||'';
+  const results = [];
+  const startblock = 0;
+
+  if(txType==='all'||txType==='native'){
+    try{
+      setAPI(`${chain.toUpperCase()} native...`,'ald');
+      const url=`${base}?module=account&action=txlist&address=${addr}&startblock=${startblock}&endblock=99999999&sort=desc&apikey=${key||'YourApiKeyToken'}`;
+      const r=await fetch(url);
+      const d=await r.json();
+      if(d.status==='1'&&Array.isArray(d.result)){
+        const sym={eth:'ETH',bsc:'BNB',polygon:'MATIC',arbitrum:'ETH',base:'ETH'}[chain]||'ETH';
+        for(const t of d.result.slice(0,100)){
+          if(minTs&&parseInt(t.timeStamp)<minTs) break;
+          results.push({
+            hash:t.hash,
+            from:t.from.toLowerCase(),
+            to:t.to.toLowerCase(),
+            value:parseInt(t.value||0)/1e18,
+            ts:parseInt(t.timeStamp),
+            tokenSymbol:sym,
+            dir:t.from.toLowerCase()===addr.toLowerCase()?'out':'in',
+          });
+        }
+        setAPI(`${chain.toUpperCase()} ✓ ${results.length}tx`,'aok');
+      } else if(d.message==='No transactions found'){
+        setAPI(`${chain.toUpperCase()} ✓ 0tx`,'aok');
+      } else {
+        setAPI(`${chain.toUpperCase()} error: ${d.message||d.result}`,'aerr');
+      }
+    }catch(e){setAPI(`${chain.toUpperCase()} failed`,'aerr');console.warn(e);}
+    await sleep(250);
+  }
+
+  if(txType==='all'||txType==='tokens'){
+    try{
+      setAPI(`${chain.toUpperCase()} ERC-20...`,'ald');
+      let url=`${base}?module=account&action=tokentx&address=${addr}&startblock=${startblock}&endblock=99999999&sort=desc&apikey=${key||'YourApiKeyToken'}`;
+      if(tokenContract) url+=`&contractaddress=${tokenContract}`;
+      const r=await fetch(url);
+      const d=await r.json();
+      if(d.status==='1'&&Array.isArray(d.result)){
+        for(const t of d.result.slice(0,100)){
+          if(minTs&&parseInt(t.timeStamp)<minTs) break;
+          results.push({
+            hash:t.hash,
+            from:t.from.toLowerCase(),
+            to:t.to.toLowerCase(),
+            value:parseInt(t.value||0)/Math.pow(10,parseInt(t.tokenDecimal||18)),
+            ts:parseInt(t.timeStamp),
+            tokenSymbol:t.tokenSymbol||'TOKEN',
+            tokenName:t.tokenName||'',
+            tokenContract:t.contractAddress,
+            dir:t.from.toLowerCase()===addr.toLowerCase()?'out':'in',
+            isToken:true,
+          });
+        }
+        setAPI(`${chain.toUpperCase()} ✓ +${results.length}tx`,'aok');
+      }
+    }catch(e){console.warn('ERC20 fetch error',e);}
+    await sleep(250);
+  }
+
+  // Deduplicate
+  const seen=new Set();
+  return results.filter(t=>{
+    const k=(t.hash||'')+(t.from||'')+(t.to||'')+(t.tokenSymbol||'');
+    if(seen.has(k))return false;seen.add(k);return true;
+  });
+}
+
+async function fetchTON(addr,minTs){
+  try{
+    setAPI('TON...','ald');
+    const r=await fetch(`https://toncenter.com/api/v3/transactions?account=${encodeURIComponent(addr)}&limit=50&sort=desc`);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    const txs=(d.transactions||[]).filter(t=>!minTs||(t.now||0)>=minTs).slice(0,40);
+    setAPI(`TON ✓ ${txs.length}tx`,'aok');
+    return txs.map(t=>{
+      const src=t.in_msg?.source,outDst=t.out_msgs?.length?t.out_msgs[0].destination:null;
+      const isIn=src&&src!==addr;
+      return{hash:t.hash,from:isIn?src:addr,to:isIn?addr:outDst,value:parseInt(t.in_msg?.value||0)/1e9,ts:t.now||0,tokenSymbol:'TON',dir:isIn?'in':'out'};
+    });
+  }catch(e){setAPI('TON error','aerr');return[];}
+}
+
+async function fetchBTC(addr,minTs){
+  try{
+    setAPI('BTC...','ald');
+    const r=await fetch(`https://mempool.space/api/address/${addr}/txs`);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    const txs=(d||[]).filter(t=>!minTs||(t.status?.block_time||0)>=minTs).slice(0,30);
+    setAPI(`BTC ✓ ${txs.length}tx`,'aok');
+    return txs.flatMap(t=>{
+      const myIn=t.vin?.some(v=>v.prevout?.scriptpubkey_address===addr);
+      const ts=t.status?.block_time||0;
+      if(myIn)return(t.vout||[]).filter(o=>o.scriptpubkey_address&&o.scriptpubkey_address!==addr)
+        .map(o=>({hash:t.txid,from:addr,to:o.scriptpubkey_address,value:(o.value||0)/1e8,ts,tokenSymbol:'BTC',dir:'out'}));
+      return[{hash:t.txid,from:null,to:addr,value:0,ts,tokenSymbol:'BTC',dir:'in'}];
+    });
+  }catch(e){setAPI('BTC error','aerr');return[];}
+}
+
+async function fetchTRON(addr,minTs){
+  try{
+    setAPI('TRON...','ald');
+    const r=await fetch(`https://api.trongrid.io/v1/accounts/${addr}/transactions?limit=40&order_by=block_timestamp,desc&only_confirmed=true`);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    const txs=(d.data||[]).filter(t=>!minTs||(t.block_timestamp||0)/1000>=minTs).slice(0,30);
+    setAPI(`TRON ✓ ${txs.length}tx`,'aok');
+    return txs.map(t=>{
+      const c=t.raw_data?.contract?.[0];
+      const from=c?.parameter?.value?.owner_address,to=c?.parameter?.value?.to_address;
+      return{hash:t.txID,from,to,value:(c?.parameter?.value?.amount||0)/1e6,ts:Math.floor((t.block_timestamp||0)/1000),tokenSymbol:'TRX',dir:from===addr?'out':'in'};
+    });
+  }catch(e){setAPI('TRON error','aerr');return[];}
+}
+
+async function fetchTxs(addr,chain,minTs){
+  if(ESCAN[chain]) return fetchEVM(addr,chain,minTs);
+  if(chain==='ton') return fetchTON(addr,minTs);
+  if(chain==='btc') return fetchBTC(addr,minTs);
+  if(chain==='tron') return fetchTRON(addr,minTs);
+  return[];
+}
+
+// ═══════════════════════════════════════
+// CONSOLIDATION
+// ═══════════════════════════════════════
+function detectConsol(nodes,edges){
+  const inbound={};
+  for(const e of edges){if(!inbound[e.to])inbound[e.to]=new Set();inbound[e.to].add(e.from);}
+  const allIds=new Set(nodes.map(n=>n.id.toLowerCase()));
+  const result=new Set();
+  for(const n of nodes){
+    const ib=inbound[n.id]||new Set();
+    if(ib.size>=3)result.add(n.id.toLowerCase());
+    const txs=S.data[n.id]?.txs||[];
+    const gs=new Set(txs.filter(t=>t.dir==='in'&&t.from&&allIds.has((t.from||'').toLowerCase())).map(t=>(t.from||'').toLowerCase()));
+    if(gs.size>=3)result.add(n.id.toLowerCase());
+  }
+  return result;
+}
+
+// ═══════════════════════════════════════
+// BUILD TREE
+// ═══════════════════════════════════════
+async function buildTree(rootAddr){
+  const{chain,period,depth:maxD}=S;
+  const minTs=cutoff(period);
+  S.nodes=[];S.edges=[];S.pos={};S.vel={};S.data={};S.sel=null;selAddr=null;S.consolMap=new Set();
+  const visited=new Set();
+  const queue=[{addr:rootAddr,depth:0,parentId:null,edgeDir:null}];
+
+  while(queue.length){
+    const{addr,depth,parentId,edgeDir}=queue.shift();
+    const key=addr.toLowerCase();
+    if(visited.has(key)||S.excluded.has(key))continue;
+    visited.add(key);
+    showLoad(`Depth ${depth}/${maxD}`,`Address: ${sh(addr)}<br>Nodes loaded: ${visited.size}`);
+    let txs=[];
+    try{txs=await fetchTxs(addr,chain,minTs);}catch(e){}
+    txs=txs.filter(t=>{const cp=((t.dir==='out'?t.to:t.from)||'').toLowerCase();return!S.excluded.has(cp);});
+    await sleep(250);
+    S.data[addr]={txs,depth};
+    S.nodes.push({id:addr,label:sh(addr),addr,depth,isRoot:depth===0,txCount:txs.length});
+    if(parentId)S.edges.push({from:parentId,to:addr,dir:edgeDir||'out',isCex:!!CEX[addr.toLowerCase()]});
+    if(depth<maxD){
+      const seen=new Set();
+      for(const tx of txs){
+        const cp=tx.dir==='out'?tx.to:tx.from;
+        if(!cp)continue;
+        const cpk=cp.toLowerCase();
+        if(visited.has(cpk)||seen.has(cpk)||S.excluded.has(cpk))continue;
+        seen.add(cpk);
+        queue.push({addr:cp,depth:depth+1,parentId:addr,edgeDir:tx.dir});
+        if(seen.size>=7)break;
+      }
+    }
+  }
+
+  // Add CEX nodes from tx counterparties
+  const cexAdded=new Set(S.nodes.map(n=>n.id.toLowerCase()));
+  for(const n of S.nodes){
+    for(const tx of(S.data[n.id]?.txs||[])){
+      const cp=((tx.dir==='out'?tx.to:tx.from)||'').toLowerCase();
+      if(CEX[cp]&&!cexAdded.has(cp)){
+        cexAdded.add(cp);
+        S.nodes.push({id:cp,label:CEX[cp],addr:cp,depth:99,isRoot:false,txCount:0,isCex:true,cexLabel:CEX[cp]});
+        S.edges.push({from:n.id,to:cp,dir:'out',isCex:true});
+      }
+    }
+  }
+  S.consolMap=detectConsol(S.nodes,S.edges);
+}
+
+// ═══════════════════════════════════════
+// LAYOUT
+// ═══════════════════════════════════════
+function layout(){
+  const{W,H,CX,CY}=S;
+  const ch={};
+  for(const e of S.edges){if(!ch[e.from])ch[e.from]=[];ch[e.from].push(e.to);}
+  const root=S.nodes.find(n=>n.depth===0);if(!root)return;
+  const baseR=Math.min(W,H)*0.2;
+  const ang={[root.id]:{s:0,e:2*Math.PI}};
+  S.pos[root.id]={x:CX,y:CY};S.vel[root.id]={x:0,y:0};
+  const q=[root.id];
+  while(q.length){
+    const id=q.shift();const nd=S.nodes.find(n=>n.id===id);if(!nd)continue;
+    const cs=ch[id]||[];if(!cs.length)continue;
+    const a=ang[id]||{s:0,e:2*Math.PI};
+    const span=a.e-a.s,sl=span/cs.length,r=(nd.depth+1)*baseR*1.4;
+    cs.forEach((cid,i)=>{
+      const cn=S.nodes.find(n=>n.id===cid);if(!cn)return;
+      const aS=a.s+i*sl,aM=aS+sl/2;
+      ang[cid]={s:aS,e:aS+sl};
+      S.pos[cid]={x:CX+r*Math.cos(aM)+(Math.random()-0.5)*10,y:CY+r*Math.sin(aM)+(Math.random()-0.5)*10};
+      S.vel[cid]={x:0,y:0};q.push(cid);
+    });
+  }
+  const cexN=S.nodes.filter(n=>n.depth===99&&!S.pos[n.id]);
+  cexN.forEach((n,i)=>{
+    const a=(2*Math.PI*i)/Math.max(1,cexN.length);
+    S.pos[n.id]={x:CX+baseR*5*Math.cos(a),y:CY+baseR*5*Math.sin(a)};S.vel[n.id]={x:0,y:0};
+  });
+  for(const n of S.nodes){
+    if(!S.pos[n.id]){S.pos[n.id]={x:CX+(Math.random()-0.5)*150,y:CY+(Math.random()-0.5)*150};S.vel[n.id]={x:0,y:0};}
+  }
+}
+
+// ═══════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════
+function render(){
+  const EL=document.getElementById('EL'),NL=document.getElementById('NL');
+  const{nodes,edges,pos,sel,consolMap}=S;
+  let eh='';
+  for(const e of edges){
+    const a=pos[e.from],b=pos[e.to];if(!a||!b)continue;
+    const hi=sel&&(e.from===sel||e.to===sel);
+    const op=sel&&!hi?0.06:0.55;
+    const isC=consolMap.has((e.to||'').toLowerCase());
+    const col=e.isCex?'#38bdf8':isC?'#ec4899':e.dir==='in'?'#10b981':'#ef4444';
+    const mk=e.isCex?'mc':isC?'mk':e.dir==='in'?'mi':'mo';
+    const mx=(a.x+b.x)/2+(b.y-a.y)*0.09,my=(a.y+b.y)/2-(b.x-a.x)*0.09;
+    eh+=`<path d="M${a.x},${a.y} Q${mx},${my} ${b.x},${b.y}" fill="none" stroke="${col}" stroke-width="${hi?2.5:isC?1.5:1}" marker-end="url(#${mk})" opacity="${op}"/>`;
+  }
+  EL.innerHTML=eh;
+  let nh='';
+  for(const n of nodes){
+    const p=pos[n.id];if(!p)continue;
+    const isSel=sel===n.id;
+    const isC=consolMap.has(n.id.toLowerCase());
+    const c=DC(n.id,n.depth,isC);
+    const rel=sel&&edges.some(e=>(e.from===n.id||e.to===n.id)&&(e.from===sel||e.to===sel));
+    const op=sel&&!isSel&&!rel?0.1:1;
+    const r=n.isRoot?26:n.isCex?19:Math.max(13,17-Math.min(n.depth,3)*2);
+    const isSanc=c.type==='sanc';
+    nh+=`<g data-id="${n.id}" style="cursor:pointer" opacity="${op}">`;
+    if(isC&&!isSanc)nh+=`<circle cx="${p.x}" cy="${p.y}" r="${r+10}" fill="none" stroke="#ec4899" stroke-width="1.5" opacity="0.4" style="animation:consol-pulse 2s ease-in-out infinite" filter="url(#glow)"/>`;
+    if(isSanc)nh+=`<circle cx="${p.x}" cy="${p.y}" r="${r+8}" fill="#1a0000" stroke="#ef4444" stroke-width="1" opacity="0.5" style="animation:sanc-pulse 1.2s ease-in-out infinite"/>`;
+    if(isSel)nh+=`<circle cx="${p.x}" cy="${p.y}" r="${r+13}" fill="none" stroke="${c.s}" stroke-width="1" stroke-dasharray="4 3" opacity="0.35"/>`;
+    nh+=`<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${c.bg}" stroke="${c.s}" stroke-width="${n.isRoot?2.5:isSel?2:1.5}"${n.isRoot||isSanc||isC?' filter="url(#glow)"':''}/>`;
+    const lbl=n.isCex?n.cexLabel:sh(n.id);
+    nh+=`<text x="${p.x}" y="${p.y+1}" text-anchor="middle" dominant-baseline="middle" font-size="${n.isCex?7:8}" fill="${c.t}" font-family="'Space Mono',monospace">${lbl}</text>`;
+    if(n.isRoot)nh+=`<text x="${p.x}" y="${p.y+r+13}" text-anchor="middle" font-size="8" fill="var(--accent)" font-family="'Syne',sans-serif" font-weight="700">ROOT</text>`;
+    else if(n.isCex)nh+=`<text x="${p.x}" y="${p.y+r+12}" text-anchor="middle" font-size="7" fill="#38bdf8" font-family="'Syne',sans-serif" font-weight="700">CEX</text>`;
+    else if(isSanc)nh+=`<text x="${p.x}" y="${p.y+r+12}" text-anchor="middle" font-size="7" fill="#ef4444" font-family="'Syne',sans-serif" font-weight="700">⚠ SANCTION</text>`;
+    else if(isC)nh+=`<text x="${p.x}" y="${p.y+r+12}" text-anchor="middle" font-size="7" fill="#ec4899" font-family="'Syne',sans-serif" font-weight="700">CONSOL</text>`;
+    else nh+=`<text x="${p.x}" y="${p.y+r+12}" text-anchor="middle" font-size="8" fill="${c.s}" opacity="0.6" font-family="'Space Mono',monospace">${n.txCount}tx</text>`;
+    nh+=`</g>`;
+  }
+  NL.innerHTML=nh;
+  NL.querySelectorAll('g[data-id]').forEach(g=>{
+    const id=g.getAttribute('data-id');
+    g.addEventListener('mousedown',e=>startDrag(e,id));
+    g.addEventListener('click',e=>{e.stopPropagation();selNode(id);});
+    g.addEventListener('dblclick',e=>{e.stopPropagation();drillDown(id);});
+    g.addEventListener('mouseenter',e=>showTT(e,id));
+    g.addEventListener('mouseleave',hideTT);
+  });
+  setStatus(`Nodes: ${nodes.length} | Edges: ${edges.length} | CEX: ${nodes.filter(n=>n.isCex).length} | Consol: ${consolMap.size} | Zoom: ${(S.scale*100).toFixed(0)}%`);
+}
+
+// ═══════════════════════════════════════
+// PHYSICS
+// ═══════════════════════════════════════
+function sim(){
+  if(!S.simOn)return;
+  const{nodes,edges,pos,vel}=S;
+  const ids=nodes.map(n=>n.id);
+  for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){
+    const a=pos[ids[i]],b=pos[ids[j]];if(!a||!b)continue;
+    const dx=a.x-b.x,dy=a.y-b.y,d=Math.sqrt(dx*dx+dy*dy)||1,f=3200/(d*d);
+    const ni=nodes.find(n=>n.id===ids[i]),nj=nodes.find(n=>n.id===ids[j]);
+    if(!ni.isRoot){vel[ids[i]].x+=dx/d*f*0.14;vel[ids[i]].y+=dy/d*f*0.14;}
+    if(!nj.isRoot){vel[ids[j]].x-=dx/d*f*0.14;vel[ids[j]].y-=dy/d*f*0.14;}
+  }
+  for(const e of edges){
+    const a=pos[e.from],b=pos[e.to];if(!a||!b)continue;
+    const dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)||1;
+    const ideal=e.isCex?220:145,f=(d-ideal)*0.005;
+    const nf=nodes.find(n=>n.id===e.from),nt=nodes.find(n=>n.id===e.to);
+    if(nf&&!nf.isRoot){vel[e.from].x+=dx/d*f;vel[e.from].y+=dy/d*f;}
+    if(nt&&!nt.isRoot){vel[e.to].x-=dx/d*f;vel[e.to].y-=dy/d*f;}
+  }
+  for(const n of nodes){
+    if(n.isRoot||n.id===S.drag)continue;
+    vel[n.id].x*=0.75;vel[n.id].y*=0.75;
+    pos[n.id].x=Math.max(40,Math.min(S.W-40,pos[n.id].x+vel[n.id].x));
+    pos[n.id].y=Math.max(40,Math.min(S.H-40,pos[n.id].y+vel[n.id].y));
+  }
+  render();if(S.simOn)requestAnimationFrame(sim);
+}
+
+// ═══════════════════════════════════════
+// NODE SIDEBAR
+// ═══════════════════════════════════════
+function selNode(id){
+  S.sel=S.sel===id?null:id;selAddr=S.sel;
+  if(S.sel){
+    buildNodePane(id);
+    document.getElementById('tab-node').style.display='';
+    document.getElementById('tab-osint').style.display='';
+    switchTab('node');
+  } else {
+    document.getElementById('tab-node').style.display='none';
+    document.getElementById('tab-osint').style.display='none';
+    switchTab('legend');
+  }
+  render();
+}
+
+function buildNodePane(id){
+  const n=S.nodes.find(x=>x.id===id);if(!n)return;
+  const el=document.getElementById('nabox');el.textContent=id;el.classList.remove('copied');
+  const isC=S.consolMap.has(id.toLowerCase()),isSanc=SANC.has(id.toLowerCase()),isCex=!!CEX[id.toLowerCase()];
+  let rc='r-clean',ri='✅',rl='CLEAN',rd='No threats detected';
+  if(isSanc){rc='r-high';ri='🚨';rl='SANCTIONED';rd='Found in OFAC/sanctions list';}
+  else if(isCex){rc='r-med';ri='🏦';rl='CEX WALLET';rd=`Known ${CEX[id.toLowerCase()]} address`;}
+  else if(isC){rc='r-pink';ri='🔀';rl='CONSOLIDATION HUB';rd='Receives from 3+ graph nodes — aggregation pattern';}
+  else{
+    const txs=S.data[id]?.txs||[];
+    const bad=txs.find(t=>SANC.has(((t.dir==='out'?t.to:t.from)||'').toLowerCase()));
+    if(bad){rc='r-high';ri='⚠️';rl='SANCTIONS CONTACT';rd='Interacted with a sanctioned address';}
+    else{
+      const cexTxs=txs.filter(t=>CEX[((t.dir==='out'?t.to:t.from)||'').toLowerCase()]);
+      if(cexTxs.length){
+        const exs=[...new Set(cexTxs.map(t=>CEX[((t.dir==='out'?t.to:t.from)||'').toLowerCase()]))];
+        rc='r-med';ri='💸';rl='CEX DEPOSIT';rd=`Sent to: ${exs.join(', ')}`;
+      }
+    }
+  }
+  document.getElementById('risk-wrap').innerHTML=`
+    <div class="risk-card ${rc}">
+      <div class="rlabel">${ri} ${rl}</div>
+      <div style="color:var(--muted2);font-size:10px">${rd}</div>
+      ${isC?'<div style="margin-top:4px"><span class="ctag ctag-consol">🔀 CONSOLIDATION</span></div>':''}
+      ${isCex?`<div style="margin-top:4px"><span class="ctag ctag-cex">🏦 ${CEX[id.toLowerCase()]}</span></div>`:''}
+    </div>`;
+
+  const em={eth:'https://etherscan.io/address/',bsc:'https://bscscan.com/address/',polygon:'https://polygonscan.com/address/',arbitrum:'https://arbiscan.io/address/',base:'https://basescan.org/address/',ton:'https://tonviewer.com/',btc:'https://mempool.space/address/',tron:'https://tronscan.org/#/address/'};
+  const exB=em[S.chain]||'https://etherscan.io/address/';
+  document.getElementById('nlinks').innerHTML=[
+    {n:'🔍 Explorer',u:exB+id},
+    {n:'🐙 Arkham',u:`https://platform.arkhamintelligence.com/explorer/address/${id}`},
+    {n:'📊 Nansen',u:`https://app.nansen.ai/wallet-profiler?address=${id}`},
+    {n:'💰 DeBank',u:`https://debank.com/profile/${id}`},
+  ].map(l=>`<a class="elink" href="${l.u}" target="_blank">${l.n}</a>`).join('');
+
+  const txs=S.data[id]?.txs||[];
+  const inT=txs.filter(t=>t.dir==='in'),outT=txs.filter(t=>t.dir==='out');
+  const inV=inT.reduce((s,t)=>s+(t.value||0),0),outV=outT.reduce((s,t)=>s+(t.value||0),0);
+  document.getElementById('nstats').innerHTML=`
+    <div class="srow"><span style="color:var(--muted2)">Depth</span><span>${n.depth===99?'CEX':n.depth}</span></div>
+    <div class="srow"><span style="color:var(--muted2)">Transactions</span><span>${txs.length}</span></div>
+    <div class="srow"><span class="tin">Incoming</span><span class="tin">${inT.length} (${fmt(inV)})</span></div>
+    <div class="srow"><span class="tout">Outgoing</span><span class="tout">${outT.length} (${fmt(outV)})</span></div>
+    <div class="srow"><span style="color:var(--muted2)">Graph edges</span><span>${S.edges.filter(e=>e.from===id||e.to===id).length}</span></div>
+    <div class="srow"><span style="color:var(--pink)">Consolidation</span><span style="color:${isC?'#ec4899':'var(--muted)'}">${isC?'🔀 YES':'-'}</span></div>`;
+
+  const tokMap={};
+  for(const tx of txs){const s=tx.tokenSymbol||'NATIVE';if(!tokMap[s])tokMap[s]={i:0,o:0,n:0};tokMap[s].n++;tokMap[s][tx.dir==='in'?'i':'o']+=(tx.value||0);}
+  document.getElementById('ntoks').innerHTML=Object.keys(tokMap).length
+    ?Object.entries(tokMap).slice(0,8).map(([s,d])=>`<div class="srow"><span class="ctag ctag-tok">${s}</span><span style="font-size:9px;color:var(--muted2)">${d.n}tx ▼${d.i.toFixed(3)} ▲${d.o.toFixed(3)}</span></div>`).join('')
+    :'<div style="color:var(--muted);font-size:10px">No data</div>';
+
+  document.getElementById('ntxs').innerHTML=txs.length
+    ?txs.slice(0,8).map(t=>{
+      const cp=t.dir==='in'?t.from:t.to;
+      const cexLbl=CEX[(cp||'').toLowerCase()];
+      const isPC=S.consolMap.has((t.to||'').toLowerCase());
+      return`<div class="txrow">
+        <span class="${isPC?'tpink':t.dir==='in'?'tin':'tout'}">${t.dir==='in'?'▼':'▲'}</span>
+        <span class="ctag ctag-tok">${t.tokenSymbol||'?'}</span>
+        <span style="margin:0 3px">${fmt(t.value)}</span>
+        <span style="color:var(--muted2)">${cexLbl?`🏦${cexLbl}`:sh(cp)||'?'}</span>
+        <span style="color:var(--muted);font-size:9px;margin-left:3px">${t.ts?new Date(t.ts*1000).toLocaleDateString():''}</span>
+      </div>`;
+    }).join('')
+    :'<div style="color:var(--muted);font-size:10px;padding:4px 0">No transactions</div>';
+
+  buildOsint(id);
+}
+
+function buildOsint(addr){
+  document.getElementById('osint-addr').textContent=addr;
+  const enc=encodeURIComponent(addr);
+  const links=[
+    {i:'🐦',s:'Twitter/X',u:`https://twitter.com/search?q=${enc}&f=live`},
+    {i:'🔴',s:'Reddit',u:`https://www.reddit.com/search/?q=${enc}&sort=new`},
+    {i:'🔎',s:'Google',u:`https://www.google.com/search?q="${enc}"`},
+    {i:'📰',s:'Google News',u:`https://www.google.com/search?q="${enc}"&tbm=nws`},
+    {i:'🐙',s:'GitHub',u:`https://github.com/search?q=${enc}&type=code`},
+    {i:'📋',s:'Etherscan Comments',u:`https://etherscan.io/address/${addr}#comments`},
+    {i:'🕵️',s:'Arkham Intel',u:`https://platform.arkhamintelligence.com/explorer/address/${addr}`},
+    {i:'📊',s:'Dune Analytics',u:`https://dune.com/search?q=${enc}`},
+    {i:'🌐',s:'DeBank History',u:`https://debank.com/profile/${addr}/history`},
+    {i:'🎭',s:'OpenSea NFTs',u:`https://opensea.io/${addr}`},
+    {i:'📌',s:'Snapshot Votes',u:`https://snapshot.org/#/profile/${addr}`},
+    {i:'🌿',s:'ENS Lookup',u:`https://app.ens.domains/address/${addr}`},
+  ];
+  document.getElementById('osint-links').innerHTML=links.map(l=>`
+    <div class="osint-row"><div class="osint-ico">${l.i}</div>
+    <div><div class="osint-src">${l.s}</div>
+    <a class="osint-link" href="${l.u}" target="_blank">Search ↗</a></div></div>`).join('');
+  const isSanc=SANC.has(addr.toLowerCase()),isCex=!!CEX[addr.toLowerCase()],isC=S.consolMap.has(addr.toLowerCase());
+  document.getElementById('osint-checks').innerHTML=`
+    <div class="srow"><span style="color:var(--muted2)">OFAC Sanctions</span><span style="color:${isSanc?'#ef4444':'#10b981'}">${isSanc?'🚨 YES':'✅ No'}</span></div>
+    <div class="srow"><span style="color:var(--muted2)">Known CEX</span><span style="color:${isCex?'#38bdf8':'var(--muted)'}">${isCex?`🏦 ${CEX[addr.toLowerCase()]}`:'-'}</span></div>
+    <div class="srow"><span style="color:var(--pink)">Consolidation</span><span style="color:${isC?'#ec4899':'var(--muted)'}">${isC?'🔀 YES':'-'}</span></div>
+    <div class="srow"><span style="color:var(--muted2)">Network</span><span>${S.chain.toUpperCase()}</span></div>`;
+}
+
+function copyAddr(){
+  if(!selAddr)return;
+  navigator.clipboard.writeText(selAddr).then(()=>{document.getElementById('nabox').classList.add('copied');toast('✓ Copied');}).catch(()=>toast('⚠ Failed','#ef4444'));
+}
+function excludeSel(){
+  if(!selAddr)return;
+  addExclude(selAddr);toast(`🚫 Excluded: ${sh(selAddr)}`,'#f87171');
+  S.sel=null;selAddr=null;
+  document.getElementById('tab-node').style.display='none';
+  document.getElementById('tab-osint').style.display='none';
+  switchTab('legend');render();
+}
+function drillSel(){if(selAddr)drillDown(selAddr);}
+function drillDown(addr){
+  if(S.root)S.hist.push({addr:S.root,chain:S.chain,period:S.period,depth:S.depth});
+  document.getElementById('addr-input').value=addr;updateBC();runExplore(addr);
+}
+function updateBC(){
+  const bc=document.getElementById('breadcrumb');
+  if(!S.hist.length&&!S.root){bc.innerHTML='<span style="color:var(--muted);font-size:10px">Navigation history...</span>';return;}
+  const items=S.hist.map((h,i)=>`<span class="bc-item" onclick="goHist(${i})">${sh(h.addr)}</span>`);
+  const cur=S.root?`<span class="bc-item cur">${sh(S.root)}</span>`:'';
+  bc.innerHTML=items.join('<span class="bc-sep"> › </span>')+(items.length?'<span class="bc-sep"> › </span>':'')+cur;
+}
+function goHist(i){
+  const h=S.hist[i];if(!h)return;
+  S.hist=S.hist.slice(0,i);
+  Object.assign(S,{chain:h.chain,period:h.period,depth:h.depth});
+  document.getElementById('csel').value=h.chain;
+  document.getElementById('addr-input').value=h.addr;
+  document.getElementById('depth-input').value=h.depth;
+  runExplore(h.addr);
+}
+
+// ═══════════════════════════════════════
+// DRAG / PAN / ZOOM
+// ═══════════════════════════════════════
+function svgPt(e){
+  const g=document.getElementById('zg'),m=g.getCTM();
+  if(m){const inv=m.inverse();return{x:e.clientX*inv.a+e.clientY*inv.c+inv.e,y:e.clientX*inv.b+e.clientY*inv.d+inv.f};}
+  const s=document.getElementById('graph-svg'),pt=s.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(s.getScreenCTM().inverse());
+}
+function startDrag(e,id){e.preventDefault();e.stopPropagation();S.drag=id;const{x,y}=svgPt(e);const p=S.pos[id]||{x:0,y:0};S.doff={x:x-p.x,y:y-p.y};}
+document.addEventListener('mousemove',e=>{
+  if(S.drag){const{x,y}=svgPt(e);S.pos[S.drag]={x:x-S.doff.x,y:y-S.doff.y};if(!S.simOn)render();return;}
+  if(S.panning){S.tx+=e.clientX-S.panStart.x;S.ty+=e.clientY-S.panStart.y;S.panStart={x:e.clientX,y:e.clientY};applyXf();}
+});
+document.addEventListener('mouseup',()=>{S.drag=null;S.panning=false;document.getElementById('graph-svg').style.cursor='grab';});
+const svgEl=document.getElementById('graph-svg');
+svgEl.addEventListener('mousedown',e=>{
+  if(e.target===svgEl||e.target.id==='graph-svg'||e.target.closest('#EL')){
+    S.panning=true;S.panStart={x:e.clientX,y:e.clientY};svgEl.style.cursor='grabbing';
+    S.sel=null;document.getElementById('tab-node').style.display='none';document.getElementById('tab-osint').style.display='none';switchTab('legend');
+  }
+});
+svgEl.addEventListener('wheel',e=>{
+  e.preventDefault();const f=e.deltaY<0?1.1:0.9;
+  const rect=svgEl.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;
+  S.tx=mx-f*(mx-S.tx);S.ty=my-f*(my-S.ty);S.scale=Math.max(0.08,Math.min(6,S.scale*f));applyXf();
+},{passive:false});
+function applyXf(){document.getElementById('zg').setAttribute('transform',`translate(${S.tx},${S.ty}) scale(${S.scale})`);}
+
+// ═══════════════════════════════════════
+// TOOLTIP
+// ═══════════════════════════════════════
+function showTT(e,id){
+  const n=S.nodes.find(x=>x.id===id);
+  const cex=CEX[id.toLowerCase()],sanc=SANC.has(id.toLowerCase()),consol=S.consolMap.has(id.toLowerCase());
+  const tt=document.getElementById('tt');
+  tt.innerHTML=`<div style="color:${sanc?'#ef4444':consol?'#ec4899':cex?'#38bdf8':'var(--accent)'};margin-bottom:3px;font-weight:700">${sanc?'🚨':consol?'🔀':cex?'🏦':''}${cex||sh(id)}</div>
+    <div style="color:var(--muted2)">Depth ${n?.depth===99?'CEX':n?.depth??'?'} · ${n?.txCount??0}tx</div>
+    ${sanc?'<div style="color:#ef4444;font-size:9px">SANCTIONED</div>':''}
+    ${consol?'<div style="color:#ec4899;font-size:9px">CONSOLIDATION HUB</div>':''}
+    ${cex?`<div style="color:#38bdf8;font-size:9px">${cex} wallet</div>`:''}
+    <div style="color:var(--muted);font-size:9px;margin-top:3px">Dbl-click → drill down</div>`;
+  tt.style.display='block';tt.style.left=(e.clientX+12)+'px';tt.style.top=(e.clientY-16)+'px';
+}
+function hideTT(){document.getElementById('tt').style.display='none';}
+
+// ═══════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════
+async function startExplore(){
+  const addr=document.getElementById('addr-input').value.trim();
+  if(!addr){toast('⚠ Enter an address','#f59e0b');return;}
+  const chain=document.getElementById('csel').value;
+  if(ESCAN[chain]&&!getKey()){toast('⚠ Etherscan API key required for EVM chains','#f59e0b');return;}
+  S.hist=[];runExplore(addr);
+}
+
+async function runExplore(addr){
+  S.chain=document.getElementById('csel').value;
+  S.period=parseInt(document.querySelector('.pbtn.active').dataset.days);
+  S.depth=Math.min(5,Math.max(1,parseInt(document.getElementById('depth-input').value)||2));
+  S.root=addr;S.scale=1;S.tx=0;S.ty=0;applyXf();
+  document.getElementById('gobtn').disabled=true;
+  showLoad('Connecting...',`Chain: ${S.chain.toUpperCase()} · ${S.period}d · Depth: ${S.depth}`);
+  try{
+    await buildTree(addr);
+    setSz();layout();hideLoad();updateBC();
+    document.getElementById('tab-node').style.display='none';
+    document.getElementById('tab-osint').style.display='none';
+    switchTab('legend');
+    if(SANC.has(addr.toLowerCase()))toast('🚨 ROOT IS SANCTIONED','#ef4444');
+    else if(S.consolMap.size>0)toast(`🔀 ${S.consolMap.size} consolidation hub(s)`,'#ec4899');
+    else if(S.nodes.filter(n=>n.isCex).length>0)toast(`🏦 ${S.nodes.filter(n=>n.isCex).length} CEX deposit(s) found`,'#f59e0b');
+    S.simOn=true;requestAnimationFrame(sim);
+    setTimeout(()=>{S.simOn=false;},8000);
+  }catch(e){showErr(`Error: ${e.message}`);}
+  document.getElementById('gobtn').disabled=false;
+}
+
+function setSz(){
+  const w=document.getElementById('canvas-wrap');
+  S.W=w.clientWidth;S.H=w.clientHeight;S.CX=S.W/2;S.CY=S.H/2;
+  document.getElementById('graph-svg').setAttribute('viewBox',`0 0 ${S.W} ${S.H}`);
+}
+document.querySelectorAll('.pbtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.pbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+}));
+document.getElementById('addr-input').addEventListener('keydown',e=>{if(e.key==='Enter')startExplore();});
+window.addEventListener('resize',()=>{setSz();if(!S.simOn)render();});
+setSz();
+</script>
+</body>
+</html>
